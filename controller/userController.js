@@ -16,7 +16,7 @@ const register = async (req,res)=>{
 
     const id = uuidv4()
     const { email, password, username } = req.body
-    res.send(id)
+    
 
     try {
         const user = await UserModel.findAll({ where: { email: email } })
