@@ -2,7 +2,7 @@
 
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const {uuid} = require("uuid4") 
+const { v4: uuidv4} = require("uuid")
 const nodemailer = require("nodemailer")
 
 const {UserModel}  = require("../model/userModel")
@@ -14,7 +14,7 @@ require("dotenv").config()
 
 const register = async (req,res)=>{
 
-    const id = uuid()
+    const id = uuidv4()
     const { email, password, username } = req.body
     res.send(id)
 
