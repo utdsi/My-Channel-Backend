@@ -2,21 +2,21 @@
 
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const { v4: uuidv4} = require("uuid")
+const { v4: uuidv4 } = require("uuid")
 const nodemailer = require("nodemailer")
 
-const {UserModel}  = require("../model/userModel")
+const { UserModel } = require("../model/userModel")
 
 require("dotenv").config()
 
 
 //--------------------------Signup-----------------------------
 
-const register = async (req,res)=>{
+const register = async (req, res) => {
 
     const id = uuidv4()
     const { email, password, username } = req.body
-    
+
 
     try {
         const user = await UserModel.findAll({ where: { email: email } })
@@ -42,7 +42,7 @@ const register = async (req,res)=>{
 
 //-------------------------------Login----------------------------
 
-const login = async (req,res)=>{
+const login = async (req, res) => {
 
     const { email, password } = req.body
 
@@ -98,77 +98,77 @@ const resetpassword = async (req, res) => {
 
     const randomAlphabetString = generateRandomAlphabetString(8);
     //---------------nodemailer-----------------------------------------------------------
+
+
+
     const transporter = nodemailer.createTransport({
+
         service: "gmail",
-        host: "smtp.gmail.net",
-        port: 587,
-        secure: false,
         auth: {
-            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-            user: process.env.USER,
-            pass: process.env.APP_PASSWORD,
-        },
-    });
 
-
-    const mailOptions = {
-        from: {
-            name: "My Channel App",
-            address: process.env.USER
-        },
-
-        // sender address
-        to: email, // list of receivers
-        subject: "Reset Password", // Subject line
-        text: `Your new password is ${randomAlphabetString}`, // plain text body
-        html: `  <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Example Email Template</title>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          </head>
-          <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; line-height: 1.5; color: #333; padding: 20px;">
-            
-          <b>Your new password is ${randomAlphabetString}</b>
-            
-          </body>
-        </html>`,
-         
-        // html body
-    }
-
-    const sendMail = async (transporter, mailOptions) => {
-
-        try {
-            await transporter.sendMail(mailOptions)
-        } catch (error) {
-            console.log(error)
+            user: "utkarshsinha852@gmail.com",
+            pass: process.env.APP_PASSWORD
         }
+
+    })
+    const mailOptions = {
+        from: "utkarshsinha852@gmail.com",
+        to: `${email}`,
+        subject: "Reset Password",
+        text: `Your new password is ${randomAlphabetString}`,
+        html: `  <!DOCTYPE html>
+             <html>
+               <head>
+                 <title>Example Email Template</title>
+                 <meta charset="utf-8" />
+                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+               </head>
+               <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; line-height: 1.5; color: #333; padding: 20px;">
+                 
+               <b>Your new password is ${randomAlphabetString}</b>
+                 
+               </body>
+             </html>`,
     }
-
-    sendMail(transporter, mailOptions)
-    //---------------------------------------------------------------------------------
-
-
 
     try {
 
-        bcrypt.hash(randomAlphabetString, 6, async function (err, hash) {
-            // Store hash in your password DB.
-            if (err) {
+        transporter
+            .sendMail(mailOptions)
+            .then((info) => {
+                bcrypt.hash(randomAlphabetString, 6, async function (err, hash) {
+                    // Store hash in your password DB.
+                    if (err) {
+                        res.status(400).send({ "status": 2, "message": "Some error occured, please try again.", "data": [] })
+                    }
+                    await UserModel.update({ password: hash }, { where: { email: email } })
+
+                    res.status(200).send({ "status": 1, "message": "updated password has been sent to your email", "data": [] })
+                });
+
+            })
+            .catch((e) => {
                 res.status(400).send({ "status": 2, "message": "Some error occured, please try again.", "data": [] })
-            }
-            await UserModel.update({ password: hash }, { where: { email: email } })
 
-            res.status(200).send({ "status": 1, "message": "updated password has been sent to your email", "data": [] })
-        });
-
+            });
 
 
     } catch (error) {
         res.status(400).send({ "status": 2, "message": "Some error occured, please try again.", "data": [] })
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
@@ -219,4 +219,4 @@ function omitPassword(user) {
 }
 
 
-module.exports = {register,login,resetpassword,changePassword}
+module.exports = { register, login, resetpassword, changePassword }
