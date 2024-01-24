@@ -118,10 +118,24 @@ const resetpassword = async (req, res) => {
         },
 
         // sender address
-        to: `${email}`, // list of receivers
+        to: email, // list of receivers
         subject: "Reset Password", // Subject line
         text: `Your new password is ${randomAlphabetString}`, // plain text body
-        html: `<b>Your new password is ${randomAlphabetString}</b>`, // html body
+        html: `  <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Example Email Template</title>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          </head>
+          <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; line-height: 1.5; color: #333; padding: 20px;">
+            
+          <b>Your new password is ${randomAlphabetString}</b>
+            
+          </body>
+        </html>`,
+         
+        // html body
     }
 
     const sendMail = async (transporter, mailOptions) => {
